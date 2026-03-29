@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Bond Yield Spreads | BondStats</title>
+  <meta
+    name="description"
+    content="Track live global government bond yield spreads versus major benchmarks across countries with a professional BondStats dashboard."
+  />
+  <style>
+    :root {
+      --bg-1: #06111d;
+      --bg-2: #0b1626;
+      --panel: rgba(12, 24, 40, 0.95);
+      --panel-2: rgba(17, 31, 50, 0.98);
+      --panel-3: rgba(20, 37, 58, 0.98);
+      --border: rgba(138, 170, 215, 0.15);
+      --text: #eef4fb;
+      --muted: #9bb0c8;
+      --soft: #7f94ad;
+      --accent: #89b8ff;
+      --good: #7fd39a;
+      --warn: #ffd27d;
+      --bad: #ff9f9f;
+      --radius: 22px;
+      --radius-sm: 16px;
+      --shadow: 0 18px 42px rgba(0,0,0,0.34);
+      --max: 1320px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 8%, rgba(80, 118, 178, 0.18), transparent 26%),
+        radial-gradient(circle at 88% 12%, rgba(89, 118, 162, 0.12), transparent 20%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 26px 18px 40px;
+    }
+
+    .hero,
+    .panel,
+    .stat,
+    .mini-card,
+    .control-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 26px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      bottom: -90px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(137, 184, 255, 0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: .09em;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: 44px;
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+      max-width: 920px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 980px;
+      font-size: 17px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      color: #d8e7fb;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .control-box {
+      background: var(--panel-2);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .control-box label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--soft);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    select {
+      width: 100%;
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #0f1f34;
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: var(--panel-2);
+    }
+
+    .stat-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--soft);
+      font-weight: 800;
+    }
+
+    .stat-value {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.06;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-note {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .sub {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .chart-shell {
+      background: var(--panel-3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      min-height: 520px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 430px;
+      display: block;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.00));
+    }
+
+    .mini-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .mini-card {
+      padding: 16px;
+      background: var(--panel-2);
+    }
+
+    .mini-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    .mini-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .spread-list {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .spread-row {
+      display: grid;
+      grid-template-columns: 1.15fr .8fr .9fr .8fr;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+    }
+
+    .spread-name {
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--panel-3);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 14px 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--soft);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .country {
+      font-weight: 700;
+    }
+
+    .bar-cell {
+      min-width: 180px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .bar-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #8cbaff, #d8e8ff);
+    }
+
+    .positive { color: var(--warn); font-weight: 700; }
+    .negative { color: var(--good); font-weight: 700; }
+
+    .footnote {
+      margin-top: 12px;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .empty {
+      color: var(--muted);
+    }
+
+    @media (max-width: 1100px) {
+      .controls,
+      .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        padding: 14px 12px 28px;
+      }
+
+      .hero, .panel, .stat, .mini-card, .control-box {
+        border-radius: 18px;
+      }
+
+      .hero, .panel {
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 31px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .controls,
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-value {
+        font-size: 30px;
+      }
+
+      canvas {
+        height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <p class="eyebrow">BondStats Spread Dashboard</p>
+      <h1>Global Bond Yield Spreads</h1>
+      <p>
+        A live sovereign yield spread dashboard built from current government bond yields across countries.
+        Compare markets against a chosen benchmark and track which countries are trading widest or tightest in the current global bond environment.
+      </p>
+      <div class="hero-meta">
+        <div class="pill" id="updated-pill">Loading latest data...</div>
+        <div class="pill" id="tracked-pill">Tracking markets...</div>
+        <div class="pill">Live source: BondStats global yield feed</div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="control-box">
+        <label for="benchmark-select">Benchmark Country</label>
+        <select id="benchmark-select"></select>
+      </div>
+      <div class="control-box">
+        <label for="region-filter">Region Filter</label>
+        <select id="region-filter">
+          <option value="All">All Regions</option>
+        </select>
+      </div>
+      <div class="control-box">
+        <label for="sort-select">Sort By</label>
+        <select id="sort-select">
+          <option value="spread-desc">Widest Positive Spread</option>
+          <option value="spread-asc">Tightest / Negative Spread</option>
+          <option value="yield-desc">Highest Yield</option>
+          <option value="change-desc">Largest Recent Increase</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="grid-4">
+      <div class="stat">
+        <span class="stat-label">Benchmark Yield</span>
+        <div class="stat-value" id="benchmark-yield">—</div>
+        <div class="stat-note" id="benchmark-note">Loading...</div>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Widest Positive Spread</span>
+        <div class="stat-value" id="widest-spread">—</div>
+        <div class="stat-note" id="widest-note">Loading...</div>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Tightest / Negative Spread</span>
+        <div class="stat-value" id="tightest-spread">—</div>
+        <div class="stat-note" id="tightest-note">Loading...</div>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Average Spread</span>
+        <div class="stat-value" id="avg-spread">—</div>
+        <div class="stat-note" id="avg-spread-note">Loading...</div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <section class="panel">
+        <h2>Spread Distribution</h2>
+        <p class="sub">
+          Countries are compared against the selected benchmark using current 10-year government bond yields.
+        </p>
+        <div class="chart-shell">
+          <canvas id="spreadChart" width="1200" height="430"></canvas>
+        </div>
+        <div class="footnote">
+          Spread = country yield minus benchmark yield, based on the latest available observation in the live BondStats feed.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Widest Spread Markets</h2>
+        <p class="sub">
+          Countries currently trading furthest above the selected benchmark.
+        </p>
+        <div class="mini-grid">
+          <div class="mini-card">
+            <h3>Top spread list</h3>
+            <div class="spread-list" id="spread-list">
+              <div class="empty">Loading spread data...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel">
+      <h2>Country Spread Table</h2>
+      <p class="sub">
+        Compare current yields, recent changes and live spreads versus the selected benchmark across countries.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Region</th>
+              <th>Yield</th>
+              <th>Recent Change</th>
+              <th>Spread vs Benchmark</th>
+              <th>Spread Strength</th>
+              <th>Date</th>
+              <th>Frequency</th>
+            </tr>
+          </thead>
+          <tbody id="spread-table">
+            <tr>
+              <td colspan="8" class="empty">Loading data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const REGION_MAP = {
+      "United States": "North America",
+      "Canada": "North America",
+      "Mexico": "North America",
+
+      "Germany": "Europe",
+      "France": "Europe",
+      "Italy": "Europe",
+      "Spain": "Europe",
+      "Netherlands": "Europe",
+      "Portugal": "Europe",
+      "Greece": "Europe",
+      "Austria": "Europe",
+      "Belgium": "Europe",
+      "Finland": "Europe",
+      "Ireland": "Europe",
+      "Denmark": "Europe",
+      "Norway": "Europe",
+      "Sweden": "Europe",
+      "Switzerland": "Europe",
+      "Poland": "Europe",
+      "Czech Republic": "Europe",
+      "Hungary": "Europe",
+      "Slovakia": "Europe",
+      "Slovenia": "Europe",
+      "Lithuania": "Europe",
+      "United Kingdom": "Europe",
+
+      "Japan": "Asia-Pacific",
+      "China": "Asia-Pacific",
+      "India": "Asia-Pacific",
+      "South Korea": "Asia-Pacific",
+      "Singapore": "Asia-Pacific",
+      "Hong Kong": "Asia-Pacific",
+      "Australia": "Asia-Pacific",
+      "New Zealand": "Asia-Pacific",
+
+      "Israel": "Middle East / Africa",
+      "South Africa": "Middle East / Africa",
+      "Egypt": "Middle East / Africa",
+
+      "Brazil": "Latin America",
+      "Chile": "Latin America",
+      "Colombia": "Latin America",
+      "Peru": "Latin America"
+    };
+
+    let ALL_ROWS = [];
+    let CURRENT_BENCHMARK = "United States";
+
+    function toNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function fmtYield(v) {
+      if (v === null || v === undefined || !Number.isFinite(v)) return "—";
+      return v.toFixed(2) + "%";
+    }
+
+    function fmtChange(v) {
+      if (v === null || v === undefined || !Number.isFinite(v)) return "—";
+      const sign = v > 0 ? "+" : "";
+      return sign + v.toFixed(2) + " pp";
+    }
+
+    function fmtSpread(v) {
+      if (v === null || v === undefined || !Number.isFinite(v)) return "—";
+      const sign = v > 0 ? "+" : "";
+      return sign + v.toFixed(2) + " pp";
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function mean(arr) {
+      if (!arr.length) return null;
+      return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+
+    function normalizeCountries(rawCountries) {
+      return Object.entries(rawCountries || {})
+        .map(([key, item]) => {
+          const value = toNumber(item.value);
+          const change =
+            item.change === null || item.change === undefined || item.change === ""
+              ? null
+              : toNumber(item.change);
+
+          if (value === null) return null;
+
+          const label = item.label || key.replaceAll("_", " ");
+
+          return {
+            key,
+            label,
+            region: REGION_MAP[label] || "Other",
+            value,
+            change,
+            date: item.date || "—",
+            frequency: item.frequency || "—"
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function populateControls(rows) {
+      const benchmarkSelect = document.getElementById("benchmark-select");
+      const regionFilter = document.getElementById("region-filter");
+
+      const countries = [...rows].sort((a, b) => a.label.localeCompare(b.label));
+      benchmarkSelect.innerHTML = countries.map(c => {
+        const selected = c.label === CURRENT_BENCHMARK ? "selected" : "";
+        return `<option value="${c.label}" ${selected}>${c.label}</option>`;
+      }).join("");
+
+      const regions = [...new Set(rows.map(r => r.region))].sort();
+      regionFilter.innerHTML =
+        `<option value="All">All Regions</option>` +
+        regions.map(r => `<option value="${r}">${r}</option>`).join("");
+    }
+
+    function computeSpreadRows(rows, benchmarkLabel) {
+      const benchmark = rows.find(r => r.label === benchmarkLabel);
+      if (!benchmark) return { benchmark: null, spreadRows: [] };
+
+      const spreadRows = rows
+        .filter(r => r.label !== benchmarkLabel)
+        .map(r => ({
+          ...r,
+          spread: r.value - benchmark.value
+        }));
+
+      return { benchmark, spreadRows };
+    }
+
+    function renderTopSpreads(rows) {
+      const target = document.getElementById("spread-list");
+      if (!rows.length) {
+        target.innerHTML = '<div class="empty">No spread data available.</div>';
+        return;
+      }
+
+      const top = [...rows].sort((a, b) => b.spread - a.spread).slice(0, 6);
+
+      target.innerHTML = top.map(r => `
+        <div class="spread-row">
+          <div class="spread-name">${r.label}</div>
+          <div>${fmtYield(r.value)}</div>
+          <div class="${r.spread >= 0 ? 'positive' : 'negative'}">${fmtSpread(r.spread)}</div>
+          <div>${r.region}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("spread-table");
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">No spread data available.</td></tr>';
+        return;
+      }
+
+      const maxAbsSpread = Math.max(...rows.map(r => Math.abs(r.spread)), 0);
+
+      tbody.innerHTML = rows.map(r => {
+        const width = maxAbsSpread > 0 ? (Math.abs(r.spread) / maxAbsSpread) * 100 : 0;
+        return `
+          <tr>
+            <td class="country">${r.label}</td>
+            <td>${r.region}</td>
+            <td>${fmtYield(r.value)}</td>
+            <td class="${Number.isFinite(r.change) && r.change > 0 ? 'positive' : Number.isFinite(r.change) && r.change < 0 ? 'negative' : ''}">
+              ${fmtChange(r.change)}
+            </td>
+            <td class="${r.spread >= 0 ? 'positive' : 'negative'}">${fmtSpread(r.spread)}</td>
+            <td class="bar-cell">
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${clamp(width, 0, 100)}%"></div>
+              </div>
+            </td>
+            <td>${r.date}</td>
+            <td>${r.frequency}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+      if (typeof radius === "number") {
+        radius = { tl: radius, tr: radius, br: radius, bl: radius };
+      } else {
+        radius = { tl: 0, tr: 0, br: 0, bl: 0, ...radius };
+      }
+      ctx.beginPath();
+      ctx.moveTo(x + radius.tl, y);
+      ctx.lineTo(x + width - radius.tr, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+      ctx.lineTo(x + width, y + height - radius.br);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+      ctx.lineTo(x + radius.bl, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+      ctx.lineTo(x, y + radius.tl);
+      ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function renderChart(rows) {
+      const canvas = document.getElementById("spreadChart");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      if (!rows.length) return;
+
+      const sorted = [...rows].sort((a, b) => b.spread - a.spread).slice(0, 18);
+
+      const left = 70;
+      const right = 30;
+      const top = 32;
+      const bottom = 62;
+      const chartW = w - left - right;
+      const chartH = h - top - bottom;
+
+      const maxSpread = Math.max(...sorted.map(r => r.spread));
+      const minSpread = Math.min(...sorted.map(r => r.spread));
+      const topValue = Math.max(maxSpread, 0);
+      const bottomValue = Math.min(minSpread, 0);
+      const range = Math.max(topValue - bottomValue, 0.5);
+
+      const zeroY = top + ((topValue / range) * chartH);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.09)";
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i <= 4; i++) {
+        const y = top + (chartH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(w - right, y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = "rgba(255,255,255,0.22)";
+      ctx.beginPath();
+      ctx.moveTo(left, zeroY);
+      ctx.lineTo(w - right, zeroY);
+      ctx.stroke();
+
+      const barSpace = chartW / sorted.length;
+      const barWidth = Math.min(36, barSpace * 0.58);
+
+      sorted.forEach((row, i) => {
+        const x = left + i * barSpace + (barSpace - barWidth) / 2;
+        const valueHeight = (Math.abs(row.spread) / range) * chartH;
+        const y = row.spread >= 0 ? zeroY - valueHeight : zeroY;
+
+        const grad = ctx.createLinearGradient(0, y, 0, y + valueHeight);
+        if (row.spread >= 0) {
+          grad.addColorStop(0, "#ffd27d");
+          grad.addColorStop(1, "#ff9b7a");
+        } else {
+          grad.addColorStop(0, "#8ac6ff");
+          grad.addColorStop(1, "#7fd39a");
+        }
+
+        ctx.fillStyle = grad;
+        roundRect(ctx, x, y, barWidth, Math.max(6, valueHeight), 8, true, false);
+
+        ctx.save();
+        ctx.translate(x + barWidth / 2, h - 12);
+        ctx.rotate(-0.62);
+        ctx.fillStyle = "#d9e6f8";
+        ctx.font = "12px Arial";
+        ctx.textAlign = "right";
+        ctx.fillText(row.label, 0, 0);
+        ctx.restore();
+      });
+
+      ctx.fillStyle = "#89a1bc";
+      ctx.font = "12px Arial";
+      ctx.textAlign = "right";
+      ctx.fillText(topValue.toFixed(2) + " pp", left - 10, top + 4);
+      ctx.fillText("0.00 pp", left - 10, zeroY + 4);
+      ctx.fillText(bottomValue.toFixed(2) + " pp", left - 10, top + chartH + 4);
+    }
+
+    function updateDashboard() {
+      const regionValue = document.getElementById("region-filter").value;
+      const sortValue = document.getElementById("sort-select").value;
+      const benchmarkValue = document.getElementById("benchmark-select").value;
+
+      CURRENT_BENCHMARK = benchmarkValue;
+
+      const filteredBase = regionValue === "All"
+        ? [...ALL_ROWS]
+        : ALL_ROWS.filter(r => r.region === regionValue || r.label === benchmarkValue);
+
+      const { benchmark, spreadRows } = computeSpreadRows(filteredBase, benchmarkValue);
+
+      if (!benchmark) return;
+
+      let rows = [...spreadRows];
+
+      if (sortValue === "spread-desc") {
+        rows.sort((a, b) => b.spread - a.spread);
+      } else if (sortValue === "spread-asc") {
+        rows.sort((a, b) => a.spread - b.spread);
+      } else if (sortValue === "yield-desc") {
+        rows.sort((a, b) => b.value - a.value);
+      } else if (sortValue === "change-desc") {
+        rows.sort((a, b) => (b.change ?? -999) - (a.change ?? -999));
+      }
+
+      const widest = [...spreadRows].sort((a, b) => b.spread - a.spread)[0] || null;
+      const tightest = [...spreadRows].sort((a, b) => a.spread - b.spread)[0] || null;
+      const avgSpread = mean(spreadRows.map(r => r.spread)) ?? 0;
+
+      document.getElementById("benchmark-yield").textContent = fmtYield(benchmark.value);
+      document.getElementById("benchmark-note").textContent =
+        benchmark.label + " • " + benchmark.date;
+
+      document.getElementById("widest-spread").textContent =
+        widest ? fmtSpread(widest.spread) : "—";
+      document.getElementById("widest-note").textContent =
+        widest ? widest.label + " • highest spread vs benchmark" : "No data";
+
+      document.getElementById("tightest-spread").textContent =
+        tightest ? fmtSpread(tightest.spread) : "—";
+      document.getElementById("tightest-note").textContent =
+        tightest ? tightest.label + " • lowest spread vs benchmark" : "No data";
+
+      document.getElementById("avg-spread").textContent = fmtSpread(avgSpread);
+      document.getElementById("avg-spread-note").textContent =
+        regionValue === "All" ? "Across all tracked regions" : "Filtered region average";
+
+      renderTopSpreads(spreadRows);
+      renderTable(rows);
+      renderChart(spreadRows);
+    }
+
+    fetch("https://botapi33.github.io/bondstats-global-yields/global_yields.json?ts=" + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        ALL_ROWS = normalizeCountries(data.countries);
+
+        document.getElementById("updated-pill").textContent =
+          "Updated: " + (data.meta?.lastUpdated || "—");
+        document.getElementById("tracked-pill").textContent =
+          ALL_ROWS.length + " countries tracked";
+
+        populateControls(ALL_ROWS);
+
+        document.getElementById("benchmark-select").addEventListener("change", updateDashboard);
+        document.getElementById("region-filter").addEventListener("change", updateDashboard);
+        document.getElementById("sort-select").addEventListener("change", updateDashboard);
+
+        updateDashboard();
+      })
+      .catch(() => {
+        document.getElementById("updated-pill").textContent = "Unable to load data";
+        document.getElementById("tracked-pill").textContent = "Data unavailable";
+        document.getElementById("benchmark-yield").textContent = "—";
+        document.getElementById("benchmark-note").textContent = "Data unavailable";
+        document.getElementById("widest-spread").textContent = "—";
+        document.getElementById("widest-note").textContent = "Data unavailable";
+        document.getElementById("tightest-spread").textContent = "—";
+        document.getElementById("tightest-note").textContent = "Data unavailable";
+        document.getElementById("avg-spread").textContent = "—";
+        document.getElementById("avg-spread-note").textContent = "Data unavailable";
+        document.getElementById("spread-list").innerHTML =
+          '<div class="empty">No spread data available.</div>';
+        document.getElementById("spread-table").innerHTML =
+          '<tr><td colspan="8" class="empty">Error loading data.</td></tr>';
+      });
+  </script>
+</body>
+</html>
